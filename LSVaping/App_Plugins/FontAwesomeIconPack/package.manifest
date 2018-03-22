@@ -1,0 +1,5 @@
+{
+    css: [
+        '~/App_Plugins/FontAwesomeIconPack/4.3.0/css/font-awesome-umb.css'
+	]
+}

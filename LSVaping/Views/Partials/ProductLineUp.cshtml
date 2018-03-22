@@ -1,0 +1,137 @@
+﻿@model  IList<LSVaping.Models.ProductViewModel>
+@using LSVaping.services.adapters;
+@using LSVaping.services.interfaces;
+@using System.Configuration;
+@using Newtonsoft.Json;
+@using Archetype.Models;
+@using Archetype.PropertyConverters;
+
+<!--GET THE CATEGORIES-->
+@{ 
+    IUmbracoAdapter uAD = new UmbracoAdapter();
+    var masterCats = uAD.getNodesByAlias(Convert.ToInt32(ConfigurationManager.AppSettings["categoriesNode"]), "category");
+}
+
+
+<div class="featured-product-wrap padding-t padding-dis">
+    <div class="container">
+        <!-- section-heading start -->
+        <div class="section-heading">
+            <h3><span class="h-color">ONE</span> SHOTS</h3>
+        </div>
+        <!-- section-heading end -->
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="features-tab">
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        @{
+                            var myClass = "active";
+                            foreach (var mCat in masterCats)
+                            {
+                                <li role="presentation" class="@myClass"><a href="#@mCat.Name" aria-controls="home" role="tab" data-toggle="tab">@mCat.Name</a></li>
+                                myClass = "";
+                            }
+                        }
+                    </ul>
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        @{ 
+                            myClass = "active";
+                            foreach(var mCat in masterCats)
+                            {
+                                <div role="tabpanel" class="tab-pane @myClass" id="@mCat.Name">
+                                    <div class="row">
+                                        <div class="featured-carousel indicator">
+                                            @{
+                                                foreach (var p in Model)
+                                                {
+                                                    if (p.categoriesString.Contains(mCat.Id.ToString()))
+                                                    {
+                                                        var pN = new umbraco.NodeFactory.Node(p.nodeID);
+                                                        var sizes = JsonConvert.DeserializeObject<ArchetypeModel>(pN.GetProperty("shotSize").Value);
+                                                        var basePrice = "";
+                                                        foreach (var s in sizes)
+                                                        {
+                                                            basePrice = s.GetValue("shotPrice");
+                                                            break;
+                                                        }
+
+
+                                                        <div class="col-lg-3">
+                                                            <div class="single-product">
+                                                                @{
+                                                                    if(p.sale)
+                                                                    {
+                                                                        <div class="sale">Sale</div>
+                                                                    }
+                                                                }
+                                                                @{
+                                                                    if(p.newItem)
+                                                                    {
+                                                                        <div class="new">new</div>
+                                                                    }
+                                                                }
+                                                                
+                                                                @{
+                                                                    if(p.sale)
+                                                                    {
+                                                                        <div class="sale-border"></div>
+                                                                    }
+                                                                }
+                                                                
+                                                                <div class="product-img-wrap">
+                                                                    <a class="product-img" href="#"> <img src="@p.mainImage" alt="@p.productTitle" /></a>
+                                                                    <div class="add-to-link">
+                                                                        <a href="#">
+                                                                            <div><i class="fa fa-heart"></i><span>Add to Wishlist</span></div>
+                                                                        </a>
+                                                                        <a data-toggle="modal" data-target="#productModal" href="#">
+                                                                            <div><i class="fa fa-eye"></i><span>Quick view</span></div>
+                                                                        </a>
+                                                                        <a href="#">
+                                                                            <div><i class="fa fa-random"></i><span>Add to compare</span></div>
+                                                                        </a>
+                                                                    </div>
+                                                                    <div class="add-to-cart">
+                                                                        <a href="#" title="add to cart">
+                                                                            <div><i class="fa fa-shopping-cart"></i><span>Add to cart</span></div>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="product-info text-center">
+                                                                    <div class="product-content">
+                                                                        <a href="#"><h3 class="pro-name">@p.productTitle</h3></a>
+                                                                        <div class="pro-rating">
+                                                                            <ul>
+                                                                                <li><i class="fa fa-star"></i></li>
+                                                                                <li><i class="fa fa-star"></i></li>
+                                                                                <li><i class="fa fa-star"></i></li>
+                                                                                <li class="r-grey"><i class="fa fa-star"></i></li>
+                                                                                <li class="r-grey"><i class="fa fa-star-half-o"></i></li>
+                                                                            </ul>
+                                                                        </div>
+                                                                        <div class="pro-price">
+                                                                            <span class="price-text">Price:</span>
+                                                                            <span class="normal-price">£@basePrice</span>
+                                                                            @*<span class="old-price"><del>£12.00</del></span>*@
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                myClass = "";
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
